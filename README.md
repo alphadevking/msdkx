@@ -445,7 +445,7 @@ Contributions are welcome! To contribute:
 1. **Fork the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/msdkx.git
+   git clone https://github.com/alphadevking/msdkx.git
    cd msdkx
    ```
 

@@ -23,6 +23,11 @@
     "monorepo",
     "templates"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alphadevking/msdkx.git"
+  },
+  "homepage": "https://github.com/alphadevking/msdkx#readme",
   "author": "alphadevking",
   "license": "MIT",
   "dependencies": {
