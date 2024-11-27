@@ -1,0 +1,29 @@
+{
+  "name": "@msdkx/cli",
+  "version": "0.1.0",
+  "private": false,
+  "main": "dist/index.js",
+  "bin": {
+    "msdkx": "dist/index.js"
+  },
+  "scripts": {
+    "dev": "echo 'Add dev script here'",
+    "build": "tsc",
+    "start": "ts-node src/index.ts",
+    "test": "echo 'Add test script here'",
+    "lint": "echo 'Add lint script here'"
+  },
+  "dependencies": {
+    "commander": "^12.1.0",
+    "ejs": "^3.1.10",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^12.1.0"
+  },
+  "devDependencies": {
+    "@types/ejs": "^3.1.5",
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  }
+}
