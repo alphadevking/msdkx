@@ -1,6 +1,7 @@
 {
   "name": "@msdkx/cli",
   "version": "0.1.0",
+  "description": "CLI tool to scaffold applications and packages for msdkx monorepo",
   "private": false,
   "main": "dist/index.js",
   "bin": {
@@ -13,6 +14,17 @@
     "test": "echo 'Add test script here'",
     "lint": "echo 'Add lint script here'"
   },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "cli",
+    "scaffold",
+    "monorepo",
+    "templates"
+  ],
+  "author": "alphadevking",
+  "license": "MIT",
   "dependencies": {
     "commander": "^12.1.0",
     "ejs": "^3.1.10",
