@@ -38,7 +38,7 @@ Before setting up the **msdkx** monorepo, ensure you have the following installe
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/yourusername/msdkx.git
+   git clone https://github.com/alphadevking/msdkx.git
    cd msdkx
    ```
 
