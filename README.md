@@ -223,23 +223,25 @@ Templates are located in the `packages/templates/` directory. Each template corr
 
 ### Available Templates
 
-1. **Next.js (App Router) + TailwindCSS** (Available Soon)
+1. **Next.js (App Router) + TailwindCSS**
    - Directory: `packages/templates/next-app-router-tailwind/`
 
-2. **Next.js (App Router) + CSS** (Available Soon)
+2. **Next.js (App Router) + CSS**
    - Directory: `packages/templates/next-app-router-css/`
 
-3. **Next.js (Pages Router) + TailwindCSS** (Available Soon)
+3. **Next.js (Pages Router) + TailwindCSS**
    - Directory: `packages/templates/next-pages-router-tailwind/`
 
-4. **Next.js (Pages Router) + CSS** (Available Soon)
+4. **Next.js (Pages Router) + CSS**
    - Directory: `packages/templates/next-pages-router-css/`
 
 5. **Vite + TailwindCSS**
    - Directory: `packages/templates/vite-tailwind/`
 
-6. **Vite + CSS** (Available Soon)
+6. **Vite + CSS**
    - Directory: `packages/templates/vite-css/`
+
+7. **More Coming Soon**
 
 ### Customizing Templates
 
