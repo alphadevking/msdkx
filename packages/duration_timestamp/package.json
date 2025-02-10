@@ -1,0 +1,26 @@
+{
+  "name": "duration-timestamp",
+  "version": "0.1.0",
+  "description": "Convert duration strings to UTC timestamps, seconds, and milliseconds.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "duration",
+    "timestamp",
+    "converter",
+    "time",
+    "utilities"
+  ],
+  "author": "Favour Orukpe (alphadevking)",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.9.0"
+  }
+}
