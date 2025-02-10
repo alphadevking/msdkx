@@ -1,7 +1,7 @@
 {
   "name": "duration-timestamp",
   "version": "0.1.0",
-  "description": "Convert duration strings to UTC timestamps, seconds, and milliseconds.",
+  "description": "A lightweight utility to convert duration strings into UTC timestamps, total seconds, and milliseconds, and vice versa.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "files": [
