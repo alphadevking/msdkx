@@ -1,5 +1,5 @@
 "use strict";
-// packages/duration-timestamp/src/index.ts
+// packages/duratii/src/index.ts
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.convertDurationToNumbers = exports.convertUTCTimestampToDurationString = exports.convertDurationToUTCTimestamp = void 0;
 var convertDuration_1 = require("./convertDuration");

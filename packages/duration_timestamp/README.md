@@ -1,4 +1,4 @@
-# duration-timestamp
+# duratii
 
 A lightweight utility to convert duration strings into UTC timestamps, total seconds, and milliseconds, and vice versa.
 
@@ -18,7 +18,7 @@ A lightweight utility to convert duration strings into UTC timestamps, total sec
 ## Installation
 
 ```bash
-npm install duration-timestamp
+npm install duratii
 ```
 
 ## Usage
@@ -28,7 +28,7 @@ import {
   convertDurationToUTCTimestamp,
   convertUTCTimestampToDurationString,
   convertDurationToNumbers
-} from 'duration-timestamp';
+} from 'duratii';
 
 // Convert a duration string to a UTC timestamp
 const { utcTimestamp, durationMs } = convertDurationToUTCTimestamp("1y 2mo 3w 4d 5h 6m 7s 250ms");
