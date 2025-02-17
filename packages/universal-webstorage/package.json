@@ -1,0 +1,30 @@
+{
+  "name": "universal-webstorage",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A universal, lightweight utility for managing web storage (localStorage, sessionStorage, etc.) with support for JSON operations, TTL, bulk actions, and React hooks.",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "webstorage",
+    "localStorage",
+    "sessionStorage",
+    "storage",
+    "utilities",
+    "react",
+    "ttl",
+    "json"
+  ],
+  "author": "Favour Orukpe (alphadevking)",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.9.0"
+  }
+}
