@@ -35,17 +35,17 @@ jobs:
       - name: Check for existing changesets
         id: check
         run: |
-          COUNT=$(ls .changeset/*.md 2>/dev/null | grep -vc README.md || echo 0)
+          COUNT=$(find .changeset -name "*.md" ! -name "README.md" 2>/dev/null | wc -l | tr -d ' ')
           echo "count=$COUNT" >> $GITHUB_OUTPUT
 
       - name: Detect changed publishable packages
         if: steps.check.outputs.count == '0'
         id: changed
         run: |
-          CLI=$(git diff HEAD~1 --name-only 2>/dev/null | grep -c "^packages/cli/" || echo 0)
-          DURATII=$(git diff HEAD~1 --name-only 2>/dev/null | grep -c "^packages/duration_timestamp/" || echo 0)
-          echo "cli=$CLI" >> $GITHUB_OUTPUT
-          echo "duratii=$DURATII" >> $GITHUB_OUTPUT
+          CLI=$(git diff HEAD^ --name-only 2>/dev/null | grep -c "^packages/cli/" || true)
+          DURATII=$(git diff HEAD^ --name-only 2>/dev/null | grep -c "^packages/duration_timestamp/" || true)
+          echo "cli=${CLI:-0}" >> $GITHUB_OUTPUT
+          echo "duratii=${DURATII:-0}" >> $GITHUB_OUTPUT
 
       - name: Determine bump type from commit message
         if: steps.check.outputs.count == '0'
