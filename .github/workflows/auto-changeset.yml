@@ -50,8 +50,10 @@ jobs:
       - name: Determine bump type from commit message
         if: steps.check.outputs.count == '0'
         id: bump
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          MSG="${{ github.event.head_commit.message }}"
+          MSG=$(echo "$COMMIT_MSG" | head -1)
 
           if echo "$MSG" | grep -qiE "BREAKING CHANGE|!:"; then
             TYPE="major"
@@ -61,8 +63,7 @@ jobs:
             TYPE="patch"
           fi
 
-          # Strip conventional commit prefix for the summary
-          SUMMARY=$(echo "$MSG" | head -1 | sed -E 's/^[a-z]+(\([^)]*\))?!?: //')
+          SUMMARY=$(echo "$MSG" | sed -E 's/^[a-z]+(\([^)]*\))?!?: //')
 
           echo "type=$TYPE" >> $GITHUB_OUTPUT
           echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
