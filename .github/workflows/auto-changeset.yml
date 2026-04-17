@@ -1,0 +1,97 @@
+name: Auto Changeset
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  auto-changeset:
+    name: Create changeset from commit
+    runs-on: ubuntu-latest
+    # Never run on bot commits to avoid infinite loops
+    if: github.actor != 'github-actions[bot]'
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Check for existing changesets
+        id: check
+        run: |
+          COUNT=$(ls .changeset/*.md 2>/dev/null | grep -vc README.md || echo 0)
+          echo "count=$COUNT" >> $GITHUB_OUTPUT
+
+      - name: Detect changed publishable packages
+        if: steps.check.outputs.count == '0'
+        id: changed
+        run: |
+          CLI=$(git diff HEAD~1 --name-only 2>/dev/null | grep -c "^packages/cli/" || echo 0)
+          DURATII=$(git diff HEAD~1 --name-only 2>/dev/null | grep -c "^packages/duration_timestamp/" || echo 0)
+          echo "cli=$CLI" >> $GITHUB_OUTPUT
+          echo "duratii=$DURATII" >> $GITHUB_OUTPUT
+
+      - name: Determine bump type from commit message
+        if: steps.check.outputs.count == '0'
+        id: bump
+        run: |
+          MSG="${{ github.event.head_commit.message }}"
+
+          if echo "$MSG" | grep -qiE "BREAKING CHANGE|!:"; then
+            TYPE="major"
+          elif echo "$MSG" | grep -qiE "^feat(\([^)]*\))?!?:"; then
+            TYPE="minor"
+          else
+            TYPE="patch"
+          fi
+
+          # Strip conventional commit prefix for the summary
+          SUMMARY=$(echo "$MSG" | head -1 | sed -E 's/^[a-z]+(\([^)]*\))?!?: //')
+
+          echo "type=$TYPE" >> $GITHUB_OUTPUT
+          echo "summary=$SUMMARY" >> $GITHUB_OUTPUT
+
+      - name: Create changeset file
+        if: steps.check.outputs.count == '0'
+        run: |
+          TYPE="${{ steps.bump.outputs.type }}"
+          SUMMARY="${{ steps.bump.outputs.summary }}"
+          CLI="${{ steps.changed.outputs.cli }}"
+          DURATII="${{ steps.changed.outputs.duratii }}"
+          FILENAME=".changeset/auto-$(git rev-parse --short HEAD).md"
+
+          FRONTMATTER=""
+          if [ "$CLI" -gt "0" ]; then
+            FRONTMATTER="${FRONTMATTER}\"@msdkx/cli\": ${TYPE}\n"
+          fi
+          if [ "$DURATII" -gt "0" ]; then
+            FRONTMATTER="${FRONTMATTER}\"duratii\": ${TYPE}\n"
+          fi
+          # Default to cli if no specific package detected
+          if [ -z "$FRONTMATTER" ]; then
+            FRONTMATTER="\"@msdkx/cli\": ${TYPE}\n"
+          fi
+
+          printf -- "---\n${FRONTMATTER}---\n\n${SUMMARY}\n" > "$FILENAME"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .changeset/
+          git commit -m "chore: auto changeset [skip ci]"
+          git push

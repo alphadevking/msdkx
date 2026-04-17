@@ -8,7 +8,7 @@
     "check-types": "turbo check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "audit": "pnpm audit --audit-level=moderate",
-    "ci": "pnpm audit --audit-level=moderate && turbo lint check-types build",
+    "check": "pnpm audit --audit-level=moderate && turbo lint check-types build",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "pnpm audit --audit-level=moderate && turbo check-types && turbo build && changeset publish"
