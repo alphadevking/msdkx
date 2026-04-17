@@ -6,31 +6,108 @@ import fs from 'fs-extra';
 import path from 'path';
 import ejs from 'ejs';
 import { execSync } from 'child_process';
+import chalk from 'chalk';
+import ora from 'ora';
 
 const program = new Command();
 
-// Define the path to the templates directory
 const templatesDir = path.resolve(__dirname, '../../templates');
 
-// Define supported package managers
 const packageManagers = ['pnpm', 'npm', 'yarn'] as const;
 type PackageManager = typeof packageManagers[number];
 
-program
-  .version('0.1.0')
-  .description('msdkx CLI to scaffold applications and packages');
+const isPackageManagerInstalled = (pm: PackageManager): boolean => {
+  try {
+    execSync(`${pm} --version`, { stdio: 'ignore' });
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+const processEJSFiles = (dirPath: string, vars: Record<string, string>): void => {
+  const entries = fs.readdirSync(dirPath);
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry);
+    if (fs.lstatSync(fullPath).isDirectory()) {
+      processEJSFiles(fullPath, vars);
+    } else if (path.extname(entry) === '.ejs') {
+      const content = fs.readFileSync(fullPath, 'utf-8');
+      const rendered = ejs.render(content, vars);
+      fs.writeFileSync(fullPath.replace(/\.ejs$/, ''), rendered);
+      fs.unlinkSync(fullPath);
+    }
+  }
+};
+
+const injectProjectName = (targetPath: string, projectName: string): void => {
+  const pkgPath = path.join(targetPath, 'package.json');
+  if (fs.existsSync(pkgPath)) {
+    const pkg = fs.readJsonSync(pkgPath);
+    pkg.name = projectName;
+    fs.writeJsonSync(pkgPath, pkg, { spaces: 2 });
+  }
+};
 
 program
-  .command('create <app-name>')
-  .description('Create a new application')
-  .action(async (appName) => {
-    // Prompt the user for framework, TailwindCSS, and package manager
+  .name('msdkx')
+  .version('0.1.1')
+  .description('CLI tool to scaffold full-stack applications');
+
+program
+  .command('list')
+  .description('List all available templates')
+  .action(() => {
+    if (!fs.existsSync(templatesDir)) {
+      console.error(chalk.red('\nTemplates directory not found.\n'));
+      process.exit(1);
+    }
+    const templates = fs.readdirSync(templatesDir).filter((t) =>
+      fs.lstatSync(path.join(templatesDir, t)).isDirectory()
+    );
+    console.log(chalk.bold('\nAvailable templates:\n'));
+    templates.forEach((t) => console.log('  ' + chalk.cyan('•') + ' ' + t));
+    console.log();
+  });
+
+program
+  .command('create [app-name]')
+  .description('Scaffold a new application')
+  .option('--skip-install', 'Skip dependency installation')
+  .option('--skip-git', 'Skip git initialization')
+  .action(async (appName: string | undefined, options: { skipInstall?: boolean; skipGit?: boolean }) => {
+    const { skipInstall, skipGit } = options;
+
+    // If no name given, prompt for it
+    if (!appName) {
+      const { name } = await inquirer.prompt([
+        {
+          type: 'input',
+          name: 'name',
+          message: 'Project name:',
+          default: 'my-app',
+          validate: (v: string) => v.trim().length > 0 || 'Name cannot be empty',
+        },
+      ]);
+      appName = name.trim();
+    }
+
+    const resolvedName = appName as string;
+    const useCwd = resolvedName === '.';
+    const projectName: string = useCwd ? path.basename(process.cwd()) : resolvedName;
+
+    console.log(chalk.bold(`\nmsdkx — creating "${projectName}"\n`));
+
     const answers = await inquirer.prompt([
       {
         type: 'list',
         name: 'framework',
         message: 'Choose a framework:',
-        choices: ['Next.js (App Router)', 'Next.js (Pages Router)', 'Vite'],
+        choices: [
+          { name: 'Next.js (App Router)', value: 'next-app-router' },
+          { name: 'Next.js (Pages Router)', value: 'next-pages-router' },
+          { name: 'Vite + React', value: 'vite' },
+        ],
       },
       {
         type: 'confirm',
@@ -44,111 +121,58 @@ program
         message: 'Choose a package manager:',
         choices: packageManagers,
         default: 'pnpm',
+        when: () => !skipInstall,
       },
     ]);
 
-    let templateName = '';
+    const packageManager: PackageManager = answers.packageManager ?? 'pnpm';
+    const templateName = `${answers.framework}-${answers.tailwind ? 'tailwind' : 'css'}`;
+    const templatePath = path.join(templatesDir, templateName);
 
-    switch (answers.framework) {
-      case 'Next.js (App Router)':
-        templateName = answers.tailwind ? 'next-app-router-tailwind' : 'next-app-router-css';
-        break;
-      case 'Next.js (Pages Router)':
-        templateName = answers.tailwind ? 'next-pages-router-tailwind' : 'next-pages-router-css';
-        break;
-      case 'Vite':
-        templateName = answers.tailwind ? 'vite-tailwind' : 'vite-css';
-        break;
-      default:
-        console.error('Unknown framework');
-        process.exit(1);
-    }
-
-    const selectedTemplatePath = path.join(templatesDir, templateName);
-
-    if (!fs.existsSync(selectedTemplatePath)) {
-      console.error(`Template "${templateName}" does not exist.`);
+    if (!fs.existsSync(templatePath)) {
+      console.error(chalk.red(`\nTemplate "${templateName}" not found.\n`));
       process.exit(1);
     }
 
-    const targetPath = path.resolve(process.cwd(), appName);
-
-    if (fs.existsSync(targetPath)) {
-      console.error(`Directory "${appName}" already exists. Please choose a different project name.`);
+    const targetPath = useCwd ? process.cwd() : path.resolve(process.cwd(), projectName);
+    if (!useCwd && fs.existsSync(targetPath)) {
+      console.error(chalk.red(`\nDirectory "${projectName}" already exists.\n`));
       process.exit(1);
     }
 
-    console.log(`\nScaffolding project "${appName}" using template "${templateName}"...\n`);
+    if (!skipInstall && !isPackageManagerInstalled(packageManager)) {
+      console.error(chalk.red(`\n${packageManager} is not installed. Please install it first.\n`));
+      process.exit(1);
+    }
 
-    // Copy template to target directory
-    fs.copySync(selectedTemplatePath, targetPath, {
-      overwrite: false,
-      errorOnExist: true,
-    });
+    // Copy template
+    const scaffoldSpinner = ora(`Scaffolding "${projectName}" from ${templateName}...`).start();
+    try {
+      fs.copySync(templatePath, targetPath, { overwrite: useCwd, errorOnExist: false });
+      processEJSFiles(targetPath, { projectName });
+      injectProjectName(targetPath, projectName);
+      scaffoldSpinner.succeed(chalk.green('Project scaffolded!'));
+    } catch (err) {
+      scaffoldSpinner.fail(chalk.red('Failed to scaffold project.'));
+      console.error((err as Error).message);
+      process.exit(1);
+    }
 
-    // Process EJS templates (if any)
-    const processEJSTemplates = async () => {
-      const files = fs.readdirSync(targetPath);
-
-      for (const file of files) {
-        const filePath = path.join(targetPath, file);
-        if (fs.lstatSync(filePath).isFile() && path.extname(file) === '.ejs') {
-          const content = fs.readFileSync(filePath, 'utf-8');
-          const rendered = ejs.render(content, { projectName: appName });
-          const newFilePath = filePath.replace('.ejs', '');
-          fs.writeFileSync(newFilePath, rendered);
-          fs.unlinkSync(filePath);
-        }
-      }
-    };
-
-    await processEJSTemplates();
-
-    // Validate the selected package manager is installed
-    const isPackageManagerInstalled = (pm: PackageManager): boolean => {
+    // Install dependencies
+    if (!skipInstall) {
+      const installSpinner = ora(`Installing dependencies with ${packageManager}...`).start();
       try {
-        execSync(`${pm} --version`, { stdio: 'ignore' });
-        return true;
-      } catch {
-        return false;
+        execSync(`${packageManager} install`, { cwd: targetPath, stdio: 'pipe' });
+        installSpinner.succeed(chalk.green(`Dependencies installed!`));
+      } catch (err) {
+        installSpinner.fail(chalk.yellow('Dependency installation failed — run it manually.'));
+        console.error(chalk.dim((err as Error).message));
       }
-    };
-
-    if (!isPackageManagerInstalled(answers.packageManager)) {
-      console.error(
-        `\nError: ${answers.packageManager} is not installed on your system. Please install it and try again.\n`
-      );
-      process.exit(1);
     }
 
-    // Install dependencies using the selected package manager
-    const installDependencies = () => {
-      console.log(`\nInstalling dependencies using ${answers.packageManager}...\n`);
-      try {
-        switch (answers.packageManager) {
-          case 'pnpm':
-            execSync('pnpm install', { cwd: targetPath, stdio: 'inherit' });
-            break;
-          case 'npm':
-            execSync('npm install', { cwd: targetPath, stdio: 'inherit' });
-            break;
-          case 'yarn':
-            execSync('yarn install', { cwd: targetPath, stdio: 'inherit' });
-            break;
-          default:
-            throw new Error('Unsupported package manager.');
-        }
-      } catch (error) {
-        console.error(`\nError installing dependencies: ${(error as Error).message}\n`);
-        process.exit(1);
-      }
-    };
-
-    installDependencies();
-
-    // Optionally, initialize a Git repository
-    const initializeGit = async () => {
-      const gitAnswers = await inquirer.prompt([
+    // Git init
+    if (!skipGit) {
+      const { initGit } = await inquirer.prompt([
         {
           type: 'confirm',
           name: 'initGit',
@@ -157,24 +181,29 @@ program
         },
       ]);
 
-      if (gitAnswers.initGit) {
+      if (initGit) {
+        const gitSpinner = ora('Initializing git...').start();
         try {
-          execSync('git init', { cwd: targetPath, stdio: 'inherit' });
-          execSync('git add .', { cwd: targetPath, stdio: 'inherit' });
-          execSync('git commit -m "Initial commit"', { cwd: targetPath, stdio: 'inherit' });
-          console.log('\nGit repository initialized.\n');
-        } catch (error) {
-          console.error(`\nError initializing Git repository: ${(error as Error).message}\n`);
+          execSync('git init', { cwd: targetPath, stdio: 'pipe' });
+          execSync('git add .', { cwd: targetPath, stdio: 'pipe' });
+          execSync('git commit -m "Initial commit"', { cwd: targetPath, stdio: 'pipe' });
+          gitSpinner.succeed(chalk.green('Git repository initialized!'));
+        } catch (err) {
+          gitSpinner.fail(chalk.yellow('Git init failed — initialize manually.'));
+          console.error(chalk.dim((err as Error).message));
         }
       }
-    };
+    }
 
-    await initializeGit();
+    const devCmd = packageManager === 'npm' ? 'npm run dev' : `${packageManager} dev`;
 
-    console.log(`\nApplication "${appName}" created successfully!\n`);
-    console.log(`\nNext Steps:\n`);
-    console.log(`  1. Navigate to your project:\n     cd ${appName}\n`);
-    console.log(`  2. Start the development server:\n     ${answers.packageManager === 'yarn' ? 'yarn dev' : answers.packageManager === 'npm' ? 'npm run dev' : 'pnpm dev'}\n`);
+    console.log('\n' + chalk.bold.green('✓ Done!'));
+    console.log(chalk.dim('\nGet started:'));
+    if (!useCwd) console.log('  ' + chalk.cyan(`cd ${projectName}`));
+    if (skipInstall) {
+      console.log('  ' + chalk.cyan(`${packageManager} install`));
+    }
+    console.log('  ' + chalk.cyan(devCmd) + '\n');
   });
 
 program.parse(process.argv);

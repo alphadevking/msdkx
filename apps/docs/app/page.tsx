@@ -1,101 +1,289 @@
-import Image, { type ImageProps } from "next/image";
-import { Button } from "@repo/ui/button";
 import styles from "./page.module.css";
 
-type Props = Omit<ImageProps, "src"> & {
-  srcLight: string;
-  srcDark: string;
-};
+const features = [
+  {
+    icon: "⚡",
+    title: "6 battle-tested templates",
+    description:
+      "Next.js App Router, Pages Router, and Vite — each with or without TailwindCSS.",
+  },
+  {
+    icon: "◆",
+    title: "TypeScript first",
+    description:
+      "Every template ships with strict TypeScript configured and ready to go.",
+  },
+  {
+    icon: "📦",
+    title: "Your package manager",
+    description:
+      "Works seamlessly with pnpm, npm, or yarn — whatever your workflow.",
+  },
+  {
+    icon: "🌿",
+    title: "Git initialized",
+    description:
+      "Your project starts clean with a git repo and an initial commit.",
+  },
+];
 
-const ThemeImage = (props: Props) => {
-  const { srcLight, srcDark, ...rest } = props;
-
-  return (
-    <>
-      <Image {...rest} src={srcLight} className="imgLight" />
-      <Image {...rest} src={srcDark} className="imgDark" />
-    </>
-  );
-};
+const templates = [
+  {
+    name: "Next.js App Router",
+    tag: "TailwindCSS",
+    icon: "▲",
+    id: "next-app-router-tailwind",
+  },
+  {
+    name: "Next.js App Router",
+    tag: "Vanilla CSS",
+    icon: "▲",
+    id: "next-app-router-css",
+  },
+  {
+    name: "Next.js Pages Router",
+    tag: "TailwindCSS",
+    icon: "▲",
+    id: "next-pages-router-tailwind",
+  },
+  {
+    name: "Next.js Pages Router",
+    tag: "Vanilla CSS",
+    icon: "▲",
+    id: "next-pages-router-css",
+  },
+  {
+    name: "Vite + React",
+    tag: "TailwindCSS",
+    icon: "⚡",
+    id: "vite-tailwind",
+  },
+  {
+    name: "Vite + React",
+    tag: "Vanilla CSS",
+    icon: "⚡",
+    id: "vite-css",
+  },
+];
 
 export default function Home() {
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <ThemeImage
-          className={styles.logo}
-          srcLight="turborepo-dark.svg"
-          srcDark="turborepo-light.svg"
-          alt="Turborepo logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>apps/docs/app/page.tsx</code>
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new/clone?demo-description=Learn+to+implement+a+monorepo+with+a+two+Next.js+sites+that+has+installed+three+local+packages.&demo-image=%2F%2Fimages.ctfassets.net%2Fe5382hct74si%2F4K8ZISWAzJ8X1504ca0zmC%2F0b21a1c6246add355e55816278ef54bc%2FBasic.png&demo-title=Monorepo+with+Turborepo&demo-url=https%3A%2F%2Fexamples-basic-web.vercel.sh%2F&from=templates&project-name=Monorepo+with+Turborepo&repository-name=monorepo-turborepo&repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fturborepo%2Ftree%2Fmain%2Fexamples%2Fbasic&root-directory=apps%2Fdocs&skippable-integrations=1&teamSlug=vercel&utm_source=create-turbo"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://turbo.build/repo/docs?utm_source"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+    <div className={styles.root}>
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
+          <span className={styles.logo}>msdkx</span>
+          <nav className={styles.nav}>
+            <a
+              href="https://github.com/alphadevking/msdkx"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.npmjs.com/package/@msdkx/cli"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              npm
+            </a>
+          </nav>
         </div>
-        <Button appName="docs" className={styles.secondary}>
-          Open alert
-        </Button>
+      </header>
+
+      <main>
+        {/* Hero */}
+        <section className={styles.hero}>
+          <div className={styles.heroContent}>
+            <div className={styles.badge}>v0.1.1 — now on npm</div>
+            <h1 className={styles.headline}>
+              Scaffold full-stack apps
+              <br />
+              in seconds
+            </h1>
+            <p className={styles.subheadline}>
+              A TypeScript-first CLI for Next.js and Vite — TailwindCSS, ESLint,
+              and git ready out of the box.
+            </p>
+            <div className={styles.ctas}>
+              <a href="#quickstart" className={styles.ctaPrimary}>
+                Get started
+              </a>
+              <a
+                href="https://github.com/alphadevking/msdkx"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.ctaSecondary}
+              >
+                GitHub ↗
+              </a>
+            </div>
+          </div>
+
+          <div className={styles.terminal}>
+            <div className={styles.terminalBar}>
+              <span className={`${styles.dot} ${styles.dotRed}`} />
+              <span className={`${styles.dot} ${styles.dotYellow}`} />
+              <span className={`${styles.dot} ${styles.dotGreen}`} />
+              <span className={styles.terminalTitle}>bash</span>
+            </div>
+            <div className={styles.terminalBody}>
+              <p>
+                <span className={styles.prompt}>$</span>{" "}
+                <span className={styles.cmd}>npx @msdkx/cli create my-app</span>
+              </p>
+              <p className={styles.dim}>
+                msdkx — creating &quot;my-app&quot;
+              </p>
+              <br />
+              <p>
+                <span className={styles.cyan}>?</span> Choose a framework:{" "}
+                <span className={styles.green}>Next.js (App Router)</span>
+              </p>
+              <p>
+                <span className={styles.cyan}>?</span> Add TailwindCSS?{" "}
+                <span className={styles.green}>Yes</span>
+              </p>
+              <p>
+                <span className={styles.cyan}>?</span> Package manager:{" "}
+                <span className={styles.green}>pnpm</span>
+              </p>
+              <br />
+              <p>
+                <span className={styles.green}>✓</span> Project scaffolded!
+              </p>
+              <p>
+                <span className={styles.green}>✓</span> Dependencies installed!
+              </p>
+              <p>
+                <span className={styles.green}>✓</span> Git repository
+                initialized!
+              </p>
+              <br />
+              <p>
+                <span className={styles.green}>✓ Done!</span>
+              </p>
+              <p className={styles.dim}>Get started:</p>
+              <p>
+                {"  "}
+                <span className={styles.cyan}>cd my-app</span>
+              </p>
+              <p>
+                {"  "}
+                <span className={styles.cyan}>pnpm dev</span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Features */}
+        <section className={styles.features} id="features">
+          <div className={styles.sectionInner}>
+            <h2 className={styles.sectionTitle}>
+              Everything you need, nothing you don&apos;t
+            </h2>
+            <div className={styles.featureGrid}>
+              {features.map((f) => (
+                <div key={f.title} className={styles.featureCard}>
+                  <span className={styles.featureIcon}>{f.icon}</span>
+                  <h3 className={styles.featureTitle}>{f.title}</h3>
+                  <p className={styles.featureDesc}>{f.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Quick Start */}
+        <section className={styles.quickstart} id="quickstart">
+          <div className={styles.sectionInner}>
+            <h2 className={styles.sectionTitle}>Quick start</h2>
+            <div className={styles.steps}>
+              <div className={styles.step}>
+                <div className={styles.stepNumber}>1</div>
+                <div className={styles.stepContent}>
+                  <h3>Create a new project</h3>
+                  <div className={styles.codeBlock}>
+                    <code>npx @msdkx/cli create my-app</code>
+                  </div>
+                  <p className={styles.stepNote}>
+                    Or:{" "}
+                    <code>pnpm dlx @msdkx/cli create my-app</code>
+                  </p>
+                </div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNumber}>2</div>
+                <div className={styles.stepContent}>
+                  <h3>Navigate to your project</h3>
+                  <div className={styles.codeBlock}>
+                    <code>cd my-app</code>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.step}>
+                <div className={styles.stepNumber}>3</div>
+                <div className={styles.stepContent}>
+                  <h3>Start the dev server</h3>
+                  <div className={styles.codeBlock}>
+                    <code>pnpm dev</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Templates */}
+        <section className={styles.templatesSection} id="templates">
+          <div className={styles.sectionInner}>
+            <h2 className={styles.sectionTitle}>Available templates</h2>
+            <p className={styles.sectionSubtitle}>
+              Choose your stack — the CLI guides you through the rest.
+            </p>
+            <div className={styles.templateGrid}>
+              {templates.map((t) => (
+                <div key={t.id} className={styles.templateCard}>
+                  <div className={styles.templateIcon}>{t.icon}</div>
+                  <div>
+                    <p className={styles.templateName}>{t.name}</p>
+                    <span className={styles.templateTag}>{t.tag}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+
       <footer className={styles.footer}>
-        <a
-          href="https://vercel.com/templates?search=turborepo&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://turbo.build?utm_source=create-turbo"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to turbo.build →
-        </a>
+        <div className={styles.footerInner}>
+          <span className={styles.footerLogo}>msdkx</span>
+          <div className={styles.footerLinks}>
+            <a
+              href="https://github.com/alphadevking/msdkx"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.npmjs.com/package/@msdkx/cli"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              npm
+            </a>
+            <a
+              href="https://github.com/alphadevking/msdkx/blob/main/LICENSE"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              MIT
+            </a>
+          </div>
+          <p className={styles.footerCopy}>© 2025 msdkx · Built with Next.js</p>
+        </div>
       </footer>
     </div>
   );

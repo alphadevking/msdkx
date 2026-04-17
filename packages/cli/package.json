@@ -31,10 +31,12 @@
   "author": "alphadevking",
   "license": "MIT",
   "dependencies": {
+    "chalk": "^4.1.2",
     "commander": "^12.1.0",
     "ejs": "^3.1.10",
     "fs-extra": "^11.2.0",
-    "inquirer": "^12.1.0"
+    "inquirer": "^12.1.0",
+    "ora": "^5.4.1"
   },
   "devDependencies": {
     "@types/ejs": "^3.1.5",
