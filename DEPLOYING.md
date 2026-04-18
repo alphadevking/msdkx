@@ -16,13 +16,16 @@ git push
 [auto-changeset] reads commit message → creates changeset
        │
        ▼
-[release] detects changeset → opens "Version Packages" PR → auto-merges it
+[release] detects changeset → opens "Version Packages" PR
+       │
+       ▼
+You merge the PR on GitHub (one click)
        │
        ▼
 [release] publishes to npm automatically
 ```
 
-**You only write code and commit. Everything else is automated.**
+**One manual step: merging the Version Packages PR on GitHub.**
 
 ---
 
