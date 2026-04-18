@@ -2,6 +2,7 @@
 
 import { Command } from 'commander';
 import inquirer from 'inquirer';
+import { version } from '../package.json';
 import fs from 'fs-extra';
 import path from 'path';
 import ejs from 'ejs';
@@ -51,7 +52,7 @@ const injectProjectName = (targetPath: string, projectName: string): void => {
 
 program
   .name('msdkx')
-  .version('0.1.1')
+  .version(version)
   .description('CLI tool to scaffold full-stack applications');
 
 program
