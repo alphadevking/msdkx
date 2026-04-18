@@ -33,7 +33,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Security audit
-        run: pnpm audit --audit-level=moderate
+        run: pnpm audit --prod --audit-level=high
 
       - name: Type check
         run: pnpm turbo check-types

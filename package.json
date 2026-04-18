@@ -7,17 +7,24 @@
     "lint": "turbo lint",
     "check-types": "turbo check-types",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "audit": "pnpm audit --audit-level=moderate",
-    "check": "pnpm audit --audit-level=moderate && turbo lint check-types build",
+    "audit": "pnpm audit --prod --audit-level=high",
+    "check": "pnpm audit --prod --audit-level=high && turbo lint check-types build",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "pnpm audit --audit-level=moderate && turbo check-types && turbo build && changeset publish"
+    "release": "pnpm audit --prod --audit-level=high && turbo check-types && turbo build && changeset publish"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.10",
     "prettier": "^3.2.5",
     "turbo": "^2.3.3",
     "typescript": "5.5.4"
+  },
+  "pnpm": {
+    "overrides": {
+      "nanoid": ">=3.3.8",
+      "flatted": ">=3.4.2",
+      "minimatch": ">=9.0.7"
+    }
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
