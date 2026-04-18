@@ -1,5 +1,11 @@
 # @msdkx/cli
 
+## 0.1.5
+
+### Patch Changes
+
+- update changeset and gh release flow
+
 ## 0.1.4
 
 ### Patch Changes
