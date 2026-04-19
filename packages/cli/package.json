@@ -7,12 +7,18 @@
   "bin": {
     "msdkx": "dist/index.js"
   },
+  "files": [
+    "dist",
+    "templates"
+  ],
   "scripts": {
     "dev": "echo 'Add dev script here'",
     "build": "tsc",
     "start": "ts-node src/index.ts",
     "test": "echo 'Add test script here'",
-    "lint": "echo 'Add lint script here'"
+    "lint": "echo 'Add lint script here'",
+    "prepack": "cp -r ../templates ./templates",
+    "postpack": "rm -rf ./templates"
   },
   "publishConfig": {
     "access": "public"

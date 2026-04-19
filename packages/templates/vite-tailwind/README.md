@@ -1,50 +1,47 @@
-# React + TypeScript + Vite
+# Vite + React + Tailwind CSS
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Scaffolded by [msdkx CLI](https://www.npmjs.com/package/@msdkx/cli).
 
-Currently, two official plugins are available:
+**Stack:** Vite 8 · React 19 · Tailwind CSS 4 · TypeScript 6
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Get started
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+pnpm dev      # start dev server
+pnpm build    # production build
+pnpm preview  # preview production build
+pnpm lint     # run linter
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Project structure
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
 ```
+src/
+  main.tsx    # entry point
+  App.tsx     # root component
+  index.css   # global styles + Tailwind import
+index.html
+vite.config.ts
+```
+
+## Tailwind CSS
+
+This template uses Tailwind CSS v4 via the Vite plugin — no PostCSS config or `tailwind.config.ts` needed.
+
+```ts
+// vite.config.ts
+import tailwindcss from '@tailwindcss/vite'
+```
+
+```css
+/* src/index.css */
+@import "tailwindcss";
+```
+
+## Resources
+
+- [Vite docs](https://vite.dev)
+- [Tailwind CSS v4 docs](https://tailwindcss.com/docs)
+- [React 19 docs](https://react.dev)

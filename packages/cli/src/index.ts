@@ -17,6 +17,9 @@ const templatesDir = path.resolve(__dirname, '../../templates');
 const packageManagers = ['pnpm', 'npm', 'yarn'] as const;
 type PackageManager = typeof packageManagers[number];
 
+const isExitPromptError = (err: unknown): boolean =>
+  err instanceof Error && err.constructor.name === 'ExitPromptError';
+
 const isPackageManagerInstalled = (pm: PackageManager): boolean => {
   try {
     execSync(`${pm} --version`, { stdio: 'ignore' });
@@ -77,134 +80,136 @@ program
   .option('--skip-install', 'Skip dependency installation')
   .option('--skip-git', 'Skip git initialization')
   .action(async (appName: string | undefined, options: { skipInstall?: boolean; skipGit?: boolean }) => {
-    const { skipInstall, skipGit } = options;
-
-    // If no name given, prompt for it
-    if (!appName) {
-      const { name } = await inquirer.prompt([
-        {
-          type: 'input',
-          name: 'name',
-          message: 'Project name:',
-          default: 'my-app',
-          validate: (v: string) => v.trim().length > 0 || 'Name cannot be empty',
-        },
-      ]);
-      appName = name.trim();
-    }
-
-    const resolvedName = appName as string;
-    const useCwd = resolvedName === '.';
-    const projectName: string = useCwd ? path.basename(process.cwd()) : resolvedName;
-
-    console.log(chalk.bold(`\nmsdkx — creating "${projectName}"\n`));
-
-    const answers = await inquirer.prompt([
-      {
-        type: 'list',
-        name: 'framework',
-        message: 'Choose a framework:',
-        choices: [
-          { name: 'Next.js (App Router)', value: 'next-app-router' },
-          { name: 'Next.js (Pages Router)', value: 'next-pages-router' },
-          { name: 'Vite + React', value: 'vite' },
-        ],
-      },
-      {
-        type: 'confirm',
-        name: 'tailwind',
-        message: 'Add TailwindCSS?',
-        default: true,
-      },
-      {
-        type: 'list',
-        name: 'packageManager',
-        message: 'Choose a package manager:',
-        choices: packageManagers,
-        default: 'pnpm',
-        when: () => !skipInstall,
-      },
-    ]);
-
-    const packageManager: PackageManager = answers.packageManager ?? 'pnpm';
-    const templateName = `${answers.framework}-${answers.tailwind ? 'tailwind' : 'css'}`;
-    const templatePath = path.join(templatesDir, templateName);
-
-    if (!fs.existsSync(templatePath)) {
-      console.error(chalk.red(`\nTemplate "${templateName}" not found.\n`));
-      process.exit(1);
-    }
-
-    const targetPath = useCwd ? process.cwd() : path.resolve(process.cwd(), projectName);
-    if (!useCwd && fs.existsSync(targetPath)) {
-      console.error(chalk.red(`\nDirectory "${projectName}" already exists.\n`));
-      process.exit(1);
-    }
-
-    if (!skipInstall && !isPackageManagerInstalled(packageManager)) {
-      console.error(chalk.red(`\n${packageManager} is not installed. Please install it first.\n`));
-      process.exit(1);
-    }
-
-    // Copy template
-    const scaffoldSpinner = ora(`Scaffolding "${projectName}" from ${templateName}...`).start();
     try {
-      fs.copySync(templatePath, targetPath, { overwrite: useCwd, errorOnExist: false });
-      processEJSFiles(targetPath, { projectName });
-      injectProjectName(targetPath, projectName);
-      scaffoldSpinner.succeed(chalk.green('Project scaffolded!'));
-    } catch (err) {
-      scaffoldSpinner.fail(chalk.red('Failed to scaffold project.'));
-      console.error((err as Error).message);
-      process.exit(1);
-    }
+      const { skipInstall, skipGit } = options;
 
-    // Install dependencies
-    if (!skipInstall) {
-      const installSpinner = ora(`Installing dependencies with ${packageManager}...`).start();
-      try {
-        execSync(`${packageManager} install`, { cwd: targetPath, stdio: 'pipe' });
-        installSpinner.succeed(chalk.green(`Dependencies installed!`));
-      } catch (err) {
-        installSpinner.fail(chalk.yellow('Dependency installation failed — run it manually.'));
-        console.error(chalk.dim((err as Error).message));
+      if (!appName) {
+        const { name } = await inquirer.prompt([
+          {
+            type: 'input',
+            name: 'name',
+            message: 'Project name:',
+            default: 'my-app',
+            validate: (v: string) => v.trim().length > 0 || 'Name cannot be empty',
+          },
+        ]);
+        appName = name.trim();
       }
-    }
 
-    // Git init
-    if (!skipGit) {
-      const { initGit } = await inquirer.prompt([
+      const resolvedName = appName as string;
+      const useCwd = resolvedName === '.';
+      const projectName: string = useCwd ? path.basename(process.cwd()) : resolvedName;
+
+      console.log(chalk.bold(`\nmsdkx — creating "${projectName}"\n`));
+
+      const answers = await inquirer.prompt([
+        {
+          type: 'list',
+          name: 'framework',
+          message: 'Choose a framework:',
+          choices: [
+            { name: 'Next.js (App Router)', value: 'next-app-router' },
+            { name: 'Next.js (Pages Router)', value: 'next-pages-router' },
+            { name: 'Vite + React', value: 'vite' },
+          ],
+        },
         {
           type: 'confirm',
-          name: 'initGit',
-          message: 'Initialize a Git repository?',
+          name: 'tailwind',
+          message: 'Add TailwindCSS?',
           default: true,
+        },
+        {
+          type: 'list',
+          name: 'packageManager',
+          message: 'Choose a package manager:',
+          choices: packageManagers,
+          default: 'pnpm',
+          when: () => !skipInstall,
         },
       ]);
 
-      if (initGit) {
-        const gitSpinner = ora('Initializing git...').start();
+      const packageManager: PackageManager = answers.packageManager ?? 'pnpm';
+      const templateName = `${answers.framework}-${answers.tailwind ? 'tailwind' : 'css'}`;
+      const templatePath = path.join(templatesDir, templateName);
+
+      if (!fs.existsSync(templatePath)) {
+        console.error(chalk.red(`\nTemplate "${templateName}" not found.\n`));
+        process.exit(1);
+      }
+
+      const targetPath = useCwd ? process.cwd() : path.resolve(process.cwd(), projectName);
+      if (!useCwd && fs.existsSync(targetPath)) {
+        console.error(chalk.red(`\nDirectory "${projectName}" already exists.\n`));
+        process.exit(1);
+      }
+
+      if (!skipInstall && !isPackageManagerInstalled(packageManager)) {
+        console.error(chalk.red(`\n${packageManager} is not installed. Please install it first.\n`));
+        process.exit(1);
+      }
+
+      const scaffoldSpinner = ora(`Scaffolding "${projectName}" from ${templateName}...`).start();
+      try {
+        fs.copySync(templatePath, targetPath, { overwrite: useCwd, errorOnExist: false });
+        processEJSFiles(targetPath, { projectName });
+        injectProjectName(targetPath, projectName);
+        scaffoldSpinner.succeed(chalk.green('Project scaffolded!'));
+      } catch (err) {
+        scaffoldSpinner.fail(chalk.red('Failed to scaffold project.'));
+        console.error((err as Error).message);
+        process.exit(1);
+      }
+
+      if (!skipInstall) {
+        const installSpinner = ora(`Installing dependencies with ${packageManager}...`).start();
         try {
-          execSync('git init', { cwd: targetPath, stdio: 'pipe' });
-          execSync('git add .', { cwd: targetPath, stdio: 'pipe' });
-          execSync('git commit -m "Initial commit"', { cwd: targetPath, stdio: 'pipe' });
-          gitSpinner.succeed(chalk.green('Git repository initialized!'));
+          execSync(`${packageManager} install`, { cwd: targetPath, stdio: 'pipe' });
+          installSpinner.succeed(chalk.green('Dependencies installed!'));
         } catch (err) {
-          gitSpinner.fail(chalk.yellow('Git init failed — initialize manually.'));
+          installSpinner.fail(chalk.yellow('Dependency installation failed — run it manually.'));
           console.error(chalk.dim((err as Error).message));
         }
       }
-    }
 
-    const devCmd = packageManager === 'npm' ? 'npm run dev' : `${packageManager} dev`;
+      if (!skipGit) {
+        const { initGit } = await inquirer.prompt([
+          {
+            type: 'confirm',
+            name: 'initGit',
+            message: 'Initialize a Git repository?',
+            default: true,
+          },
+        ]);
 
-    console.log('\n' + chalk.bold.green('✓ Done!'));
-    console.log(chalk.dim('\nGet started:'));
-    if (!useCwd) console.log('  ' + chalk.cyan(`cd ${projectName}`));
-    if (skipInstall) {
-      console.log('  ' + chalk.cyan(`${packageManager} install`));
+        if (initGit) {
+          const gitSpinner = ora('Initializing git...').start();
+          try {
+            execSync('git init', { cwd: targetPath, stdio: 'pipe' });
+            execSync('git add .', { cwd: targetPath, stdio: 'pipe' });
+            execSync('git commit -m "Initial commit"', { cwd: targetPath, stdio: 'pipe' });
+            gitSpinner.succeed(chalk.green('Git repository initialized!'));
+          } catch (err) {
+            gitSpinner.fail(chalk.yellow('Git init failed — initialize manually.'));
+            console.error(chalk.dim((err as Error).message));
+          }
+        }
+      }
+
+      const devCmd = packageManager === 'npm' ? 'npm run dev' : `${packageManager} dev`;
+
+      console.log('\n' + chalk.bold.green('✓ Done!'));
+      console.log(chalk.dim('\nGet started:'));
+      if (!useCwd) console.log('  ' + chalk.cyan(`cd ${projectName}`));
+      if (skipInstall) console.log('  ' + chalk.cyan(`${packageManager} install`));
+      console.log('  ' + chalk.cyan(devCmd) + '\n');
+    } catch (err) {
+      if (isExitPromptError(err)) {
+        console.log(chalk.dim('\n\nCancelled.'));
+        process.exit(0);
+      }
+      throw err;
     }
-    console.log('  ' + chalk.cyan(devCmd) + '\n');
   });
 
 program.parse(process.argv);
