@@ -1,11 +1,24 @@
 import styles from "./page.module.css";
+import { CopyButton } from "./CopyButton";
+
+async function getNpmVersion(): Promise<string> {
+  try {
+    const res = await fetch("https://registry.npmjs.org/@msdkx/cli/latest", {
+      cache: "force-cache",
+    });
+    const data = await res.json();
+    return `v${data.version as string}`;
+  } catch {
+    return "latest";
+  }
+}
 
 const features = [
   {
     icon: "⚡",
     title: "6 battle-tested templates",
     description:
-      "Next.js App Router, Pages Router, and Vite — each with or without TailwindCSS.",
+      "Next.js App Router, Pages Router, and Vite — each with or without Tailwind CSS.",
   },
   {
     icon: "◆",
@@ -28,51 +41,25 @@ const features = [
 ];
 
 const templates = [
-  {
-    name: "Next.js App Router",
-    tag: "TailwindCSS",
-    icon: "▲",
-    id: "next-app-router-tailwind",
-  },
-  {
-    name: "Next.js App Router",
-    tag: "Vanilla CSS",
-    icon: "▲",
-    id: "next-app-router-css",
-  },
-  {
-    name: "Next.js Pages Router",
-    tag: "TailwindCSS",
-    icon: "▲",
-    id: "next-pages-router-tailwind",
-  },
-  {
-    name: "Next.js Pages Router",
-    tag: "Vanilla CSS",
-    icon: "▲",
-    id: "next-pages-router-css",
-  },
-  {
-    name: "Vite + React",
-    tag: "TailwindCSS",
-    icon: "⚡",
-    id: "vite-tailwind",
-  },
-  {
-    name: "Vite + React",
-    tag: "Vanilla CSS",
-    icon: "⚡",
-    id: "vite-css",
-  },
+  { name: "Next.js App Router", tag: "Tailwind CSS 4", icon: "▲", id: "next-app-router-tailwind" },
+  { name: "Next.js App Router", tag: "Vanilla CSS", icon: "▲", id: "next-app-router-css" },
+  { name: "Next.js Pages Router", tag: "Tailwind CSS 4", icon: "▲", id: "next-pages-router-tailwind" },
+  { name: "Next.js Pages Router", tag: "Vanilla CSS", icon: "▲", id: "next-pages-router-css" },
+  { name: "Vite + React", tag: "Tailwind CSS 4", icon: "⚡", id: "vite-tailwind" },
+  { name: "Vite + React", tag: "Vanilla CSS", icon: "⚡", id: "vite-css" },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const version = await getNpmVersion();
+
   return (
     <div className={styles.root}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
           <span className={styles.logo}>msdkx</span>
           <nav className={styles.nav}>
+            <a href="#features">Features</a>
+            <a href="#quickstart">Docs</a>
             <a
               href="https://github.com/alphadevking/msdkx"
               target="_blank"
@@ -84,6 +71,7 @@ export default function Home() {
               href="https://www.npmjs.com/package/@msdkx/cli"
               target="_blank"
               rel="noopener noreferrer"
+              className={styles.navNpm}
             >
               npm
             </a>
@@ -95,16 +83,24 @@ export default function Home() {
         {/* Hero */}
         <section className={styles.hero}>
           <div className={styles.heroContent}>
-            <div className={styles.badge}>v0.1.1 — now on npm</div>
+            <div className={styles.badge}>
+              <span className={styles.badgePulse} />
+              <span className={styles.badgeVersion}>{version}</span>
+              <span className={styles.badgeSep}>·</span>
+              <span>now on npm</span>
+            </div>
+
             <h1 className={styles.headline}>
               Scaffold full-stack apps
               <br />
-              in seconds
+              <span className={styles.headlineAccent}>in seconds</span>
             </h1>
+
             <p className={styles.subheadline}>
-              A TypeScript-first CLI for Next.js and Vite — TailwindCSS, ESLint,
-              and git ready out of the box.
+              A TypeScript-first CLI for Next.js and Vite. Tailwind CSS 4,
+              strict TypeScript, and git — ready out of the box.
             </p>
+
             <div className={styles.ctas}>
               <a href="#quickstart" className={styles.ctaPrimary}>
                 Get started
@@ -117,6 +113,24 @@ export default function Home() {
               >
                 GitHub ↗
               </a>
+            </div>
+
+            <div className={styles.statsRow}>
+              <img
+                src="https://img.shields.io/npm/dm/@msdkx/cli?style=flat&label=downloads%2Fmo&color=555&labelColor=111"
+                alt="npm downloads"
+                height={20}
+              />
+              <img
+                src="https://img.shields.io/npm/v/@msdkx/cli?style=flat&label=version&color=555&labelColor=111"
+                alt="npm version"
+                height={20}
+              />
+              <img
+                src="https://img.shields.io/github/license/alphadevking/msdkx?style=flat&color=555&labelColor=111"
+                alt="license"
+                height={20}
+              />
             </div>
           </div>
 
@@ -132,16 +146,14 @@ export default function Home() {
                 <span className={styles.prompt}>$</span>{" "}
                 <span className={styles.cmd}>npx @msdkx/cli create my-app</span>
               </p>
-              <p className={styles.dim}>
-                msdkx — creating &quot;my-app&quot;
-              </p>
+              <p className={styles.dim}>msdkx — creating &quot;my-app&quot;</p>
               <br />
               <p>
                 <span className={styles.cyan}>?</span> Choose a framework:{" "}
                 <span className={styles.green}>Next.js (App Router)</span>
               </p>
               <p>
-                <span className={styles.cyan}>?</span> Add TailwindCSS?{" "}
+                <span className={styles.cyan}>?</span> Add Tailwind CSS?{" "}
                 <span className={styles.green}>Yes</span>
               </p>
               <p>
@@ -156,8 +168,7 @@ export default function Home() {
                 <span className={styles.green}>✓</span> Dependencies installed!
               </p>
               <p>
-                <span className={styles.green}>✓</span> Git repository
-                initialized!
+                <span className={styles.green}>✓</span> Git repository initialized!
               </p>
               <br />
               <p>
@@ -171,6 +182,7 @@ export default function Home() {
               <p>
                 {"  "}
                 <span className={styles.cyan}>pnpm dev</span>
+                <span className={styles.cursor} />
               </p>
             </div>
           </div>
@@ -182,6 +194,9 @@ export default function Home() {
             <h2 className={styles.sectionTitle}>
               Everything you need, nothing you don&apos;t
             </h2>
+            <p className={styles.sectionSubtitle}>
+              Sensible defaults so you can focus on building, not configuring.
+            </p>
             <div className={styles.featureGrid}>
               {features.map((f) => (
                 <div key={f.title} className={styles.featureCard}>
@@ -198,35 +213,45 @@ export default function Home() {
         <section className={styles.quickstart} id="quickstart">
           <div className={styles.sectionInner}>
             <h2 className={styles.sectionTitle}>Quick start</h2>
+            <p className={styles.sectionSubtitle}>
+              From zero to running app in under a minute.
+            </p>
             <div className={styles.steps}>
               <div className={styles.step}>
                 <div className={styles.stepNumber}>1</div>
                 <div className={styles.stepContent}>
                   <h3>Create a new project</h3>
-                  <div className={styles.codeBlock}>
-                    <code>npx @msdkx/cli create my-app</code>
+                  <div className={styles.codeWrapper}>
+                    <code className={styles.codeBlock}>
+                      npx @msdkx/cli create my-app
+                    </code>
+                    <CopyButton text="npx @msdkx/cli create my-app" />
                   </div>
                   <p className={styles.stepNote}>
-                    Or:{" "}
+                    Or with pnpm:{" "}
                     <code>pnpm dlx @msdkx/cli create my-app</code>
                   </p>
                 </div>
               </div>
+
               <div className={styles.step}>
                 <div className={styles.stepNumber}>2</div>
                 <div className={styles.stepContent}>
                   <h3>Navigate to your project</h3>
-                  <div className={styles.codeBlock}>
-                    <code>cd my-app</code>
+                  <div className={styles.codeWrapper}>
+                    <code className={styles.codeBlock}>cd my-app</code>
+                    <CopyButton text="cd my-app" />
                   </div>
                 </div>
               </div>
+
               <div className={styles.step}>
                 <div className={styles.stepNumber}>3</div>
                 <div className={styles.stepContent}>
                   <h3>Start the dev server</h3>
-                  <div className={styles.codeBlock}>
-                    <code>pnpm dev</code>
+                  <div className={styles.codeWrapper}>
+                    <code className={styles.codeBlock}>pnpm dev</code>
+                    <CopyButton text="pnpm dev" />
                   </div>
                 </div>
               </div>
@@ -251,6 +276,22 @@ export default function Home() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Install CTA */}
+        <section className={styles.cta}>
+          <div className={styles.ctaInner}>
+            <h2 className={styles.ctaTitle}>Ready to build?</h2>
+            <p className={styles.ctaDesc}>
+              Install globally or run directly with npx.
+            </p>
+            <div className={styles.codeWrapper}>
+              <code className={styles.codeBlockDark}>
+                npm install -g @msdkx/cli
+              </code>
+              <CopyButton text="npm install -g @msdkx/cli" />
             </div>
           </div>
         </section>
@@ -282,7 +323,9 @@ export default function Home() {
               MIT
             </a>
           </div>
-          <p className={styles.footerCopy}>© 2025 msdkx · Built with Next.js</p>
+          <p className={styles.footerCopy}>
+            © {new Date().getFullYear()} msdkx · Built with Next.js
+          </p>
         </div>
       </footer>
     </div>
