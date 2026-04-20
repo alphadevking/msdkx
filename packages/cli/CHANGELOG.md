@@ -1,5 +1,11 @@
 # @msdkx/cli
 
+## 0.1.6
+
+### Patch Changes
+
+- bundle templates with package, add graceful shutdown, upgrade all templates to latest versions
+
 ## 0.1.5
 
 ### Patch Changes
