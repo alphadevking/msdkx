@@ -1,6 +1,6 @@
 {
   "name": "@msdkx/cli",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "CLI tool to scaffold applications and packages for msdkx monorepo",
   "private": false,
   "main": "dist/index.js",

@@ -1,5 +1,11 @@
 # @msdkx/cli
 
+## 0.1.7
+
+### Patch Changes
+
+- bundle templates with published package via prepack, add graceful Ctrl+C shutdown, upgrade all templates to Next.js 16 / React 19 / Vite 8 / Tailwind CSS 4 / TypeScript 6
+
 ## 0.1.6
 
 ### Patch Changes
