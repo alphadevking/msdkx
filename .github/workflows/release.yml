@@ -15,6 +15,7 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: write
+      actions: write
 
     steps:
       - name: Checkout
@@ -65,3 +66,8 @@ jobs:
               echo "Created release: $tag"
             fi
           done
+
+      - name: Trigger docs rebuild
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run pages.yml --ref main
